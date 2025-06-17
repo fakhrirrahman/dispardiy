@@ -22,14 +22,8 @@ class WisataAlam extends Model
         'rating'
     ];
 
-    protected $casts = [
-        'jam_buka' => 'time',
-        'jam_tutup' => 'time',
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
-        'harga_tiket' => 'decimal:2',
-        'rating' => 'decimal:1'
-    ];
-
-    
+    public function getGambarUrlAttribute()
+    {
+        return $this->gambar ? asset('storage/wisata/' . $this->gambar) : null;
+    }
 }
