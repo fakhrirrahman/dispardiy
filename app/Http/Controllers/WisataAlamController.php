@@ -44,7 +44,7 @@ class WisataAlamController extends Controller
 
         if ($request->hasFile('gambar')) {
             $filename = time() . '_' . $request->file('gambar')->getClientOriginalName();
-            $request->file('gambar')->storeAs('public/wisata', $filename);
+            $request->file('gambar')->storeAs('wisata', $filename);
             $data['gambar'] = $filename;
         }
 
@@ -57,7 +57,7 @@ class WisataAlamController extends Controller
     public function show($id)
     {
         $wisata = $this->wisataAlamRepo->find($id);
-        $wisata->gambar_url = $wisata->gambar ? asset('storage/wisata/' . $wisata->gambar) : null;
+        $wisata->gambar_url = $wisata->gambar ? asset('wisata/' . $wisata->gambar) : null;
 
         return response()->json($wisata);
     }
@@ -92,7 +92,7 @@ class WisataAlamController extends Controller
         }
 
         $wisata = $this->wisataAlamRepo->update($id, $data);
-        $wisata->gambar_url = $wisata->gambar ? asset('storage/wisata/' . $wisata->gambar) : null;
+        $wisata->gambar_url = $wisata->gambar ? asset('wisata/' . $wisata->gambar) : null;
 
         return response()->json($wisata);
     }
@@ -102,8 +102,8 @@ class WisataAlamController extends Controller
         $wisata = $this->wisataAlamRepo->find($id);
 
         // Hapus gambar jika ada
-        if ($wisata->gambar && Storage::exists('public/wisata/' . $wisata->gambar)) {
-            Storage::delete('public/wisata/' . $wisata->gambar);
+        if ($wisata->gambar && Storage::exists('wisata/' . $wisata->gambar)) {
+            Storage::delete('wisata/' . $wisata->gambar);
         }
 
         $this->wisataAlamRepo->delete($id);
