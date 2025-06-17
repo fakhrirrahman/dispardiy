@@ -7,4 +7,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::resource('wisata-alam', WisataAlamController::class);
+Route::resource('wisata-alam', WisataAlamController::class);

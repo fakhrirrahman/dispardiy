@@ -19,7 +19,6 @@ class WisataAlamController extends Controller
     {
         $wisataList = $this->wisataAlamRepo->all();
 
-        // Tambahkan gambar_url ke setiap data
         $wisataList->each(function ($item) {
             $item->gambar_url = $item->gambar ? asset('storage/wisata/' . $item->gambar) : null;
         });
@@ -53,6 +52,22 @@ class WisataAlamController extends Controller
 
         return response()->json($wisata, 201);
     }
+    public function edit($id)
+    {
+        $wisata = $this->wisataAlamRepo->find($id);
+
+        if (!$wisata) {
+            abort(404, 'Data wisata tidak ditemukan.');
+        }
+
+        $wisata->gambar_url = $wisata->gambar
+            ? asset('storage/wisata/' . $wisata->gambar)
+            : null;
+
+        return view('wisata.edit', compact('wisata'));
+    }
+
+
 
     public function show($id)
     {
@@ -77,31 +92,30 @@ class WisataAlamController extends Controller
             'rating' => 'nullable|numeric|min:0|max:5',
         ]);
 
-        // Ambil data lama untuk hapus gambar jika perlu
         $oldData = $this->wisataAlamRepo->find($id);
 
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama
-            if ($oldData->gambar && Storage::exists('public/wisata/' . $oldData->gambar)) {
-                Storage::delete('public/wisata/' . $oldData->gambar);
+            if ($oldData->gambar && Storage::disk('public')->exists('wisata/' . $oldData->gambar)) {
+                Storage::disk('public')->delete('wisata/' . $oldData->gambar);
             }
 
-            $filename = time() . '_' . $request->file('gambar')->getClientOriginalName();
-            $request->file('gambar')->storeAs('public/wisata', $filename);
+            $filename = time() . '_' . str_replace(' ', '_', $request->file('gambar')->getClientOriginalName());
+            $request->file('gambar')->storeAs('wisata', $filename, 'public');
             $data['gambar'] = $filename;
         }
 
         $wisata = $this->wisataAlamRepo->update($id, $data);
-        $wisata->gambar_url = $wisata->gambar ? asset('wisata/' . $wisata->gambar) : null;
+        $wisata->gambar_url = $wisata->gambar ? asset('storage/wisata/' . $wisata->gambar) : null;
 
-        return response()->json($wisata);
+
+        return view('wisata.edit', compact('wisata'));
     }
+
 
     public function destroy($id)
     {
         $wisata = $this->wisataAlamRepo->find($id);
 
-        // Hapus gambar jika ada
         if ($wisata->gambar && Storage::exists('wisata/' . $wisata->gambar)) {
             Storage::delete('wisata/' . $wisata->gambar);
         }
