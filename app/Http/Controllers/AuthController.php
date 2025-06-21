@@ -31,15 +31,16 @@ class AuthController extends Controller
         $role = $this->authRepo->login($credentials);
 
         if ($role === 'admin') {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('home')->with('success', 'Login berhasil sebagai Admin.');
         }
 
         if ($role === 'user') {
-            return redirect()->route('user.dashboard');
+            return redirect()->route('home')->with('success', 'Login berhasil sebagai User.');
         }
 
         return back()->withErrors([
             'email' => 'Login gagal atau role tidak sesuai.',
+            'password' => 'Pastikan email dan password benar.',
         ])->withInput();
     }
 

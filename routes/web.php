@@ -4,25 +4,36 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WisataAlamController;
 
-Route::get('/', function () {
-    return view('welcome');
+
+
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+
+
+
+
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
 
-    Route::resource('wisata-alam', WisataAlamController::class);
+Route::group(['middleware' => ['role_or_permission:admin']], function () {
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('home');
+
+    Route::get('/wisata-alam', [WisataAlamController::class, 'index'])->name('wisata-alam.index');
+    Route::get('/wisata-alam/{id}', [WisataAlamController::class, 'show'])->name('wisata-alam.show');
+    Route::get('/wisata-alam/create', [WisataAlamController::class, 'create'])->name('wisata-alam.create');
+    Route::post('/wisata-alam', [WisataAlamController::class, 'store'])->name('wisata-alam.store');
+    Route::get('/wisata-alam/{id}/edit', [WisataAlamController::class, 'edit'])->name('wisata-alam.edit');
+    Route::put('/wisata-alam/{id}', [WisataAlamController::class, 'update'])->name('wisata-alam.update');
+    Route::delete('/wisata-alam/{id}', [WisataAlamController::class, 'destroy'])->name('wisata-alam.destroy');
 });
 
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::group(['middleware' => ['role_or_permission:user']], function () {
+    //
 
-Route::middleware(['auth', 'role:admin'])->get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
-
-Route::middleware(['auth', 'role:user'])->get('/user/dashboard', function () {
-    return view('user.dashboard');
-})->name('user.dashboard');
+});

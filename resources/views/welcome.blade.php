@@ -11,7 +11,7 @@
 
 <body>
     <div class="container">
-        <h1>Welcome to the Laravel Application</h1>
+        <h1>{{auth()->check() ? 'Welcome, ' . auth()->user()->name : 'Welcome'}}</h1>
         <p>This is a simple welcome page.</p>
         <a href="{{ route('login') }}" class="btn btn-primary">Login</a>
         <a href="{{ route('register') }}" class="btn btn-secondary">Register</a>
