@@ -14,60 +14,54 @@ class AuthController extends Controller
         $this->authRepo = $authRepo;
     }
 
-    // ✅ Tampilkan form login
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    // ✅ Proses login
     public function login(Request $request)
     {
         $credentials = $request->validate([
             'email'    => 'required|email',
-            'password' => 'required',
+            'password' => 'required|string',
         ]);
 
         $role = $this->authRepo->login($credentials);
 
-        if ($role === 'admin') {
+        if ($role === 'ADMIN') {
             return redirect()->route('home')->with('success', 'Login berhasil sebagai Admin.');
         }
 
-        if ($role === 'user') {
+        if ($role === 'USER') {
             return redirect()->route('home')->with('success', 'Login berhasil sebagai User.');
         }
 
         return back()->withErrors([
-            'email' => 'Login gagal atau role tidak sesuai.',
-            'password' => 'Pastikan email dan password benar.',
+            'email' => 'Login gagal. Pastikan email, password, dan role Anda benar.',
         ])->withInput();
     }
 
-    // ✅ Tampilkan form register
     public function showRegister()
     {
         return view('auth.register');
     }
 
-    // ✅ Proses register
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email|unique:users',
-            'password'              => 'required|min:6|confirmed',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
         ]);
 
         $this->authRepo->register($validated);
 
-        return redirect()->back()->with('success', 'Registrasi berhasil, silakan login.');
+        return redirect()->route('login')->with('success', 'Registrasi berhasil. Selamat datang!');
     }
 
     public function logout(Request $request)
     {
         $this->authRepo->logout();
-
-        return redirect()->route('login');
+        return redirect()->route('login')->with('success', 'Anda telah logout.');
     }
 }

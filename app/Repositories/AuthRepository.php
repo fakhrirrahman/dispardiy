@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -14,13 +15,12 @@ class AuthRepository implements AuthRepositoryInterface
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            if ($user->hasRole(['admin', 'user'])) {
+            if ($user->hasRole(Role::ROLE['ADMIN']) || $user->hasRole(Role::ROLE['USER'])) {
                 session()->regenerate();
-
-                return $user->getRoleNames()->first(); // return 'admin' / 'user'
+                return $user->getRoleNames()->first();
             }
 
-            Auth::logout(); // Tidak punya role yang valid
+            Auth::logout();
         }
 
         return null;
@@ -29,14 +29,16 @@ class AuthRepository implements AuthRepositoryInterface
     public function register(array $data): User
     {
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
+            'name'     => $data['name'],
+            'email'    => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 
-        $user->assignRole('user'); // default role
+        $user->assignRole(Role::ROLE['USER']);
 
         Auth::login($user);
+        session()->regenerate();
+
         return $user;
     }
 

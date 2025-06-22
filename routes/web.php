@@ -4,25 +4,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WisataAlamController;
 
-
-
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
 
+Route::group(['middleware' => ['role_or_permission:ADMIN']], function () {
 
-
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-});
-
-
-Route::group(['middleware' => ['role_or_permission:admin']], function () {
-    Route::get('/', function () {
-        return view('welcome');
-    })->name('home');
 
     Route::get('/wisata-alam', [WisataAlamController::class, 'index'])->name('wisata-alam.index');
     Route::get('/wisata-alam/{id}', [WisataAlamController::class, 'show'])->name('wisata-alam.show');
@@ -33,7 +26,7 @@ Route::group(['middleware' => ['role_or_permission:admin']], function () {
     Route::delete('/wisata-alam/{id}', [WisataAlamController::class, 'destroy'])->name('wisata-alam.destroy');
 });
 
-Route::group(['middleware' => ['role_or_permission:user']], function () {
+Route::group(['middleware' => ['role_or_permission:USER']], function () {
     //
 
 });
